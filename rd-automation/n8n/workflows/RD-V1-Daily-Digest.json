@@ -1,0 +1,26 @@
+{
+  "id": "RdV1Daily0000001",
+  "name": "RD-V1-Daily-Digest",
+  "active": false,
+  "nodes": [
+    {
+      "id": "6583543b-0cba-44b3-abcf-f1f047ed3985",
+      "name": "Weekdays 09:00 Asia Shanghai",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "0 0 9 * * 1-5"}]}}
+    },
+    {
+      "id": "586b9257-23b6-4570-9e1d-a3d9d18ac09d",
+      "name": "Queue daily digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0],
+      "parameters": {"method": "POST", "url": "http://go-gateway:8080/internal/v1/daily", "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth", "options": {"timeout": 85000}},
+      "credentials": {"httpHeaderAuth": {"id": "RdGatewayHeader1", "name": "RD n8n → Gateway"}}
+    }
+  ],
+  "connections": {"Weekdays 09:00 Asia Shanghai": {"main": [[{"node": "Queue daily digest", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1", "timezone": "Asia/Shanghai", "saveDataErrorExecution": "none", "saveDataSuccessExecution": "none", "saveManualExecutions": false}
+}

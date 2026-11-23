@@ -1,0 +1,12 @@
+# Extend team-workbench's Compose file for a private, dedicated Gateway ↔ API link.
+services:
+  api:
+    networks:
+      app: {}
+      storage: {}
+      dm:
+        aliases: [team-workbench-api]
+networks:
+  dm:
+    external: true
+    name: rd-workbench-dm

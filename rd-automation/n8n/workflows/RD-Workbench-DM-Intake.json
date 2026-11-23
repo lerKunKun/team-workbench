@@ -1,0 +1,9 @@
+{
+  "id": "RdWorkbenchDmIn1", "name": "RD-Workbench-DM-Intake", "active": false,
+  "nodes": [
+    {"id":"4840ccda-2543-490c-8194-a715233c4b3b","name":"Private message job","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[0,0],"webhookId":"b057bcce-1278-4462-a9c9-b3b70fdb1e2e","parameters":{"httpMethod":"POST","path":"workbench-private-intake","authentication":"headerAuth","responseMode":"lastNode","responseData":"firstEntryJson","options":{}},"credentials":{"httpHeaderAuth":{"id":"RdWorkflowHeader","name":"RD Gateway → n8n"}}},
+    {"id":"46ab3c8a-a634-4f62-9adc-44f5ac461c86","name":"Create private preview","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[280,0],"parameters":{"method":"POST","url":"http://go-gateway:8080/internal/workbench/intake","authentication":"genericCredentialType","genericAuthType":"httpHeaderAuth","sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}","options":{"timeout":85000}},"credentials":{"httpHeaderAuth":{"id":"RdGatewayHeader1","name":"RD n8n → Gateway"}}}
+  ],
+  "connections":{"Private message job":{"main":[[{"node":"Create private preview","type":"main","index":0}]]}},
+  "settings":{"executionOrder":"v1","saveDataErrorExecution":"none","saveDataSuccessExecution":"none","saveManualExecutions":false}
+}

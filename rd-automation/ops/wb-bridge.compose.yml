@@ -1,0 +1,17 @@
+# Extend rd-automation's Compose file only when linking the private workbench API.
+services:
+  n8n:
+    networks:
+      db: {}
+      automation: {}
+      dm:
+        aliases: [rd-n8n]
+  go-gateway:
+    networks:
+      db: {}
+      automation: {}
+      dm: {}
+networks:
+  dm:
+    external: true
+    name: rd-workbench-dm

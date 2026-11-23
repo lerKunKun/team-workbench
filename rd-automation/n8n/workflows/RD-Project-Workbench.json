@@ -1,0 +1,374 @@
+{
+  "id": "RdProjectWorkbench",
+  "name": "RD-项目工作台",
+  "active": false,
+  "nodes": [
+    {
+      "id": "4840ccda-2543-490c-8194-a715233c4b3b",
+      "name": "workbench-private-intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "b057bcce-1278-4462-a9c9-b3b70fdb1e2e",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "workbench-private-intake",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdWorkflowHeader",
+          "name": "RD Gateway → n8n"
+        }
+      }
+    },
+    {
+      "id": "46ab3c8a-a634-4f62-9adc-44f5ac461c86",
+      "name": "Create private preview",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://go-gateway:8080/internal/workbench/intake",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}",
+        "options": {
+          "timeout": 85000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdGatewayHeader1",
+          "name": "RD n8n → Gateway"
+        }
+      }
+    },
+    {
+      "id": "0dc02d67-7f48-4a7f-94c4-306c2c2cb7d2",
+      "name": "workbench-private-action",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "19338644-a7e8-485a-88ef-2ebdd66b6e3f",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "workbench-private-action",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdWorkflowHeader",
+          "name": "RD Gateway → n8n"
+        }
+      }
+    },
+    {
+      "id": "a6763aa7-c1c4-49ae-b776-2728a6037b02",
+      "name": "Process private confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://go-gateway:8080/internal/workbench/action",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}",
+        "options": {
+          "timeout": 85000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdGatewayHeader1",
+          "name": "RD n8n → Gateway"
+        }
+      }
+    },
+    {
+      "id": "3e119efd-0632-4633-80ec-e47989092b5c",
+      "name": "dingtalk-ai-intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "4b915a85-5042-44fd-8efd-8cfd14573e88",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dingtalk-ai-intake",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdWorkflowHeader",
+          "name": "RD Gateway → n8n"
+        }
+      }
+    },
+    {
+      "id": "886f09e4-2147-4926-a107-04bb3c49887e",
+      "name": "Build and deliver draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        480
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://go-gateway:8080/internal/process/intake",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}",
+        "options": {
+          "timeout": 85000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdGatewayHeader1",
+          "name": "RD n8n → Gateway"
+        }
+      }
+    },
+    {
+      "id": "6a6b8d3e-ed6c-4bfb-a0c7-ef7adb0ec04d",
+      "name": "dingtalk-card-action",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        720
+      ],
+      "webhookId": "75be5baf-3731-463b-856c-17fb19b56e65",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dingtalk-card-action",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdWorkflowHeader",
+          "name": "RD Gateway → n8n"
+        }
+      }
+    },
+    {
+      "id": "b7d7dca5-af57-45a4-9c77-7393ad8c9621",
+      "name": "Confirm or cancel draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        720
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://go-gateway:8080/internal/process/action",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}",
+        "options": {
+          "timeout": 85000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdGatewayHeader1",
+          "name": "RD n8n → Gateway"
+        }
+      }
+    },
+    {
+      "id": "08449921-b36d-4d40-9b18-b5fcf7179010",
+      "name": "roadmap-feedback",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        960
+      ],
+      "webhookId": "0be3b5ec-a290-402a-a240-4fa88fc34a3e",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "roadmap-feedback",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdRoadmapHook001",
+          "name": "RD Workbench → Roadmap webhook"
+        }
+      }
+    },
+    {
+      "id": "f0e90aa9-abbf-4c46-997d-1decb79b4d77",
+      "name": "Import approved Roadmap item",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        960
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://team-workbench-api:8091/api/integrations/roadmap/feedback",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ itemId: $json.body.itemId, projectId: $json.body.projectId, title: $json.body.title, summary: $json.body.summary, votes: $json.body.votes }) }}",
+        "options": {
+          "timeout": 8000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RdRoadmapImport1",
+          "name": "RD n8n → Roadmap import"
+        }
+      }
+    },
+    {
+      "id": "4f60a601-d12e-4b68-a228-7cff9d38a35e",
+      "name": "Return import status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        960
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.statusCode === 200 ? { id: $json.body.id } : { ok: false } }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "workbench-private-intake": {
+      "main": [
+        [
+          {
+            "node": "Create private preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "workbench-private-action": {
+      "main": [
+        [
+          {
+            "node": "Process private confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dingtalk-ai-intake": {
+      "main": [
+        [
+          {
+            "node": "Build and deliver draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dingtalk-card-action": {
+      "main": [
+        [
+          {
+            "node": "Confirm or cancel draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "roadmap-feedback": {
+      "main": [
+        [
+          {
+            "node": "Import approved Roadmap item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Import approved Roadmap item": {
+      "main": [
+        [
+          {
+            "node": "Return import status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
+}

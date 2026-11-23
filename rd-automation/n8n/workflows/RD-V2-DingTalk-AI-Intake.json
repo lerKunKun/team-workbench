@@ -1,0 +1,28 @@
+{
+  "id": "RdV2Intake000001",
+  "name": "RD-V2-DingTalk-AI-Intake",
+  "active": false,
+  "nodes": [
+    {
+      "id": "3e119efd-0632-4633-80ec-e47989092b5c",
+      "name": "Gateway Job Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "4b915a85-5042-44fd-8efd-8cfd14573e88",
+      "parameters": {"httpMethod": "POST", "path": "dingtalk-ai-intake", "authentication": "headerAuth", "responseMode": "lastNode", "responseData": "firstEntryJson", "options": {}},
+      "credentials": {"httpHeaderAuth": {"id": "RdWorkflowHeader", "name": "RD Gateway → n8n"}}
+    },
+    {
+      "id": "886f09e4-2147-4926-a107-04bb3c49887e",
+      "name": "Build and deliver draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0],
+      "parameters": {"method": "POST", "url": "http://go-gateway:8080/internal/process/intake", "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth", "sendBody": true, "specifyBody": "json", "jsonBody": "={{ JSON.stringify({ job_id: $json.body.job_id, lease_id: $json.body.lease_id }) }}", "options": {"timeout": 85000}},
+      "credentials": {"httpHeaderAuth": {"id": "RdGatewayHeader1", "name": "RD n8n → Gateway"}}
+    }
+  ],
+  "connections": {"Gateway Job Webhook": {"main": [[{"node": "Build and deliver draft", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1", "saveDataErrorExecution": "none", "saveDataSuccessExecution": "none", "saveManualExecutions": false}
+}

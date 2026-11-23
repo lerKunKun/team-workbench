@@ -1,0 +1,113 @@
+name: ${COMPOSE_PROJECT_NAME:-rd-automation}
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:f2f98726820d0342055351c6e9d36e705f5bfffb3dd53ff556325114b08afb6d
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rd_platform
+      POSTGRES_USER: rd_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run scripts/init-env.sh}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?run scripts/init-env.sh}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?run scripts/init-env.sh}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/00-roles.sh:/docker-entrypoint-initdb.d/00-roles.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U rd_admin -d rd_platform']
+      interval: 5s
+      timeout: 4s
+      retries: 20
+    networks: [db]
+  n8n:
+    image: n8nio/n8n:2.48.7@sha256:fabce3e9678a07d2dde83bd8f5124017f3ec457d0a3fc6b63bb4cec465d63861
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_DATABASE: rd_platform
+      DB_POSTGRESDB_SCHEMA: n8n
+      DB_POSTGRESDB_USER: rd_n8n
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?run scripts/init-env.sh}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?run scripts/init-env.sh}
+      N8N_HOST: ${N8N_PUBLIC_HOST:-localhost}
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      N8N_PORT: 5678
+      N8N_SECURE_COOKIE: ${N8N_SECURE_COOKIE:-false}
+      N8N_EDITOR_BASE_URL: ${N8N_PUBLIC_URL:-http://localhost:5678/}
+      WEBHOOK_URL: ${N8N_PUBLIC_URL:-http://localhost:5678/}
+      N8N_PROXY_HOPS: ${N8N_PROXY_HOPS:-0}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: 'true'
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: 'true'
+      N8N_COMMUNITY_PACKAGES_ENABLED: 'false'
+      N8N_DIAGNOSTICS_ENABLED: 'false'
+      N8N_PERSONALIZATION_ENABLED: 'false'
+      GENERIC_TIMEZONE: Asia/Shanghai
+      TZ: Asia/Shanghai
+      EXECUTIONS_DATA_PRUNE: 'true'
+      EXECUTIONS_DATA_MAX_AGE: 168
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+    ports:
+      - '127.0.0.1:${N8N_HOST_PORT:-5678}:5678'
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/workflows:ro
+    healthcheck:
+      test: [CMD, node, '-e', "fetch('http://127.0.0.1:5678/healthz/readiness').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [db, automation]
+  go-gateway:
+    build: ./gateway
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      LISTEN_ADDR: ':8080'
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?run scripts/init-env.sh}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:?run scripts/init-env.sh}
+      N8N_HOOK_TOKEN: ${N8N_HOOK_TOKEN:?run scripts/init-env.sh}
+      N8N_BASE_URL: http://n8n:5678
+      DEMO_MODE: ${DEMO_MODE:-false}
+      DINGTALK_STREAM_ENABLED: ${DINGTALK_STREAM_ENABLED:-false}
+      DINGTALK_WORKBENCH_DM: ${DINGTALK_WORKBENCH_DM:-false}
+      DINGTALK_CORP_ID: ${DINGTALK_CORP_ID:-}
+      WORKBENCH_API_URL: ${WORKBENCH_API_URL:-}
+      WORKBENCH_BOT_TOKEN: ${WORKBENCH_BOT_TOKEN:-}
+      DINGTALK_CLIENT_ID: ${DINGTALK_CLIENT_ID:-}
+      DINGTALK_CLIENT_SECRET: ${DINGTALK_CLIENT_SECRET:-}
+      DINGTALK_ROBOT_CODE: ${DINGTALK_ROBOT_CODE:-}
+      DINGTALK_CARD_TEMPLATE_ID: ${DINGTALK_CARD_TEMPLATE_ID:-}
+      DINGTALK_ALLOWED_GROUPS: ${DINGTALK_ALLOWED_GROUPS:-}
+      LINEAR_API_KEY: ${LINEAR_API_KEY:-}
+      LINEAR_TEAM_ID: ${LINEAR_TEAM_ID:-}
+      LINEAR_LABEL_IDS: ${LINEAR_LABEL_IDS:-}
+      LLM_API_BASE_URL: ${LLM_API_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_JSON_MODE: ${LLM_JSON_MODE:-true}
+      V1_CONVERSATION_ID: ${V1_CONVERSATION_ID:-}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      GITHUB_ALLOWED_REPOSITORIES: ${GITHUB_ALLOWED_REPOSITORIES:-}
+      LINEAR_WEBHOOK_SECRET: ${LINEAR_WEBHOOK_SECRET:-}
+    ports:
+      - '127.0.0.1:${GATEWAY_HOST_PORT:-8080}:8080'
+    read_only: true
+    stop_grace_period: 15s
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    healthcheck:
+      test: [CMD, /bin/busybox, wget, '-qO', /dev/null, 'http://127.0.0.1:8080/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [db, automation]
+volumes:
+  pg_data:
+  n8n_data:
+networks:
+  db:
+    internal: true
+  automation:
